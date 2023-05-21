@@ -1,0 +1,20 @@
+Como abrir e rodar o código:
+
+NOTA: O referido programa foi desenvolvido na linguagem C e no sistema operacional LINUX, dessa forma, os passos a serem seguidos para sua compilação e execução vão funcionar apenas neste ambiente.
+
+Passo 1:
+- Entre no terminal da sua máquina.
+
+Passo 2:
+- Compile o programa:
+  gcc -Wall merge.c -o merge
+  
+- Execute o programa:
+  ./merge 100
+  
+  OBS: o valor 100 refere-se ao número de elementos que será atribuido ao vetor. Esta quantidade não é fixa, então ele pode ser alterado, desde que o número seja um inteiro positivo.
+
+
+Pós Execução:
+
+O resultado da execução será um valor, 35003876, por exemplo. Este número representa o tempo que o programa levou para ser executado, neste caso, foi preciso 35 milissegundos, 3 microssegundos e 876 nanossegundos. Lembrando que este valor pode variar a cada nova execução, pois o sistema operacional administra outros processos computacionais que podem influenciar no tempo.
