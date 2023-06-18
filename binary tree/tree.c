@@ -69,6 +69,21 @@ void tree_insert(Tree *tree, int value){
     }
 };
 
+Node* search(Node *root, int v){
+    if(root != NULL){
+        if(root->value == v){
+            return root;
+        }
+        else{
+            if(v < root->value){
+                return search(root->left, v);
+            }
+            return search(root->right, v);
+        }
+    }
+    return NULL;
+}
+
 void print_tree(Node *root){
     if(root != NULL){
         print_tree(root->left);
@@ -97,6 +112,11 @@ int main(){
     Tree tree;
     tree.root = NULL;
 
+    Node *no = (Node*)malloc(sizeof(Node));
+    no->value = 0;
+    no->left = NULL;
+    no->right = NULL;
+
     do{
 
         system("clear||cls");
@@ -107,6 +127,7 @@ int main(){
         printf("| 2- Imprimir Árvore        |\n");
         printf("| 3- Imprimir o menor valor |\n");
         printf("| 4- Imprimir o maior valor |\n");
+        printf("| 5- Buscar elemento        |\n");
         printf("=============================\n");
         printf("Selecione uma Opção: ");
 
@@ -134,6 +155,19 @@ int main(){
         else if(op == 4){
             printf("\n o maior valor da árvore é: %d", max(tree.root));
             getchar();
+        }
+        else if(op == 5){
+            printf("\nInforme o Valor a ser buscado: ");
+            scanf("%d", &valor);
+            no = search(tree.root, valor);
+            if(no == NULL){
+                printf("\nvalor do elemento informado não foi encontrado!\n");
+                getchar();
+            }
+            else{
+                printf("\nO endereço do nó encontrado é %p e o valor do nó é: %d", no, no->value);
+                getchar();
+            }
         }
         else{
             printf("\nOpção inválida!\n");
