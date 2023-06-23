@@ -24,88 +24,76 @@ Node* createNo(int value){
     return new_node;
 }
 
-void balance(Node *no){
-    no = no->parent;
-    while(no != NULL){
-        if((fatorBalance(no) > 1) || (fatorBalance(no < -1))){
+int caso(Node *no){
+    int fBalance = fatorBalance(no);
+    if((fBalance > 1) && (fatorBalance(no->left) > 0)){
+        return 1;
+    } 
+    else if((fBalance < -1) && (fatorBalance(no->right) < 0)){
+        return 2;
+    }
+    else if((fBalance > 1) && (fatorBalance(no->left) < 0)){
+        return 3;
+    }
+    return 4;
+}
 
+void balance(Node *no){
+    no = no;
+    int fBalance = 0;
+    int c = 0;
+    while(no != NULL){
+        fBalance = fatorBalance(no);
+        if(fBalance < -1 || fBalance > 1){
+            c = caso(no);
+            if(c == 1){
+                rotRigth(no);
+            }
+            else if(c == 2){
+                rotLeft(no);
+            }
+            else if(c == 3){
+                printf("ainda vou fazer");
+            }
+            else{
+                printf("ainda vou fazer");
+            }
         }
         no = no->parent;
     }
 }
 
-Node* rotLeft(Node *no){
+void rotLeft(Node *no){
     Node *rChild, *lChild;
 
     rChild = no->right;
-    lChild = no->right;
+    lChild = rChild->left;
 
     rChild->left = no;
     no->right = lChild;
 
+    rChild->parent = no->parent;
+    no->parent = rChild;
+
     no->h = big(heigthNo(no->left), heigthNo(no->right)) + 1;
     rChild->h = big(heigthNo(rChild->left), heigthNo(rChild->right)) + 1;
-
-    return rChild;
 }
 
-Node* rotLeft(Node *no){
+void rotRigth(Node *no){
     Node *rChild, *lChild;
 
-    rChild = no->right;
-    lChild = no->right;
+    lChild = no->left;
+    rChild = lChild->right;
 
-    rChild->left = no;
-    no->right = lChild;
+    lChild->right = no;
+    no->left = rChild;
+
+    lChild->parent = no->parent;
+    no->parent = lChild;
 
     no->h = big(heigthNo(no->left), heigthNo(no->right)) + 1;
-    rChild->h = big(heigthNo(rChild->left), heigthNo(rChild->right)) + 1;
-
-    return rChild;
+    lChild->h = big(heigthNo(lChild->left), heigthNo(lChild->right)) + 1;
 }
-
-void insertLeft(Node *lNode, int value){
-    if(lNode->left == NULL){
-        lNode->left = createNo(value);
-    }
-    else{
-        if(value < lNode->left->value){
-            insertLeft(lNode->left, value);
-        }
-        if(value > lNode->left->value){
-            insertRight(lNode->left, value);
-        }
-    }
-
-}
-
-void insertRight(Node *rNode, int value){
-    if(rNode->right == NULL){
-        rNode->right = createNo(value);
-    }
-    else{
-        if(value < rNode->right->value){
-            insertLeft(rNode->right, value);
-        }
-        if(value > rNode->right->value){
-            insertRight(rNode->right, value);
-        }
-    }
-}
-
-void tree_insert(Tree *tree, int value){
-    if(tree->root == NULL){
-        tree->root = createNo(value);
-    }
-    else{
-        if(value < tree->root->value){
-            insertLeft(tree->root, value);
-        }
-        if(value > tree->root->value){
-            insertRight(tree->root, value);
-        }
-    }
-};
 
 int big(int lChild, int rChild){
     if(lChild > rChild){
@@ -127,6 +115,77 @@ int fatorBalance(Node *no){
     }
     return 0;
 }
+
+void insertLeft(Node *lNode, int value){
+    if(lNode->left == NULL){
+
+        Node *new_node = (Node*)malloc(sizeof(Node));
+        new_node->value = value;
+        new_node->h = 0;
+        new_node->left = NULL;
+        new_node->right = NULL;
+        new_node->parent = lNode;
+
+        lNode->left = new_node;
+
+        lNode->left->h = big(heigthNo(lNode->left->left), heigthNo(lNode->left->right)) + 1;
+        balance(lNode->left);
+
+    }
+    else{
+        if(value < lNode->left->value){
+            insertLeft(lNode->left, value);
+        }
+        if(value > lNode->left->value){
+            insertRight(lNode->left, value);
+        }
+    }
+
+}
+
+void insertRight(Node *rNode, int value){
+    if(rNode->right == NULL){
+
+        Node *new_node = (Node*)malloc(sizeof(Node));
+        new_node->value = value;
+        new_node->h = 0;
+        new_node->left = NULL;
+        new_node->right = NULL;
+        new_node->parent = rNode;
+
+        rNode->right = new_node;
+
+        rNode->right->h = big(heigthNo(rNode->right->left), heigthNo(rNode->right->right)) + 1;
+        balance(rNode->right);
+    }
+    else{
+        if(value < rNode->right->value){
+            insertLeft(rNode->right, value);
+        }
+        if(value > rNode->right->value){
+            insertRight(rNode->right, value);
+        }
+    }
+}
+
+void tree_insert(Node *root, int value){
+    if(root == NULL){
+        root = createNo(value);
+
+        root->h = big(heigthNo(root->left), heigthNo(root->right)) + 1;
+        balance(root);
+
+    }
+    else{
+        if(value < root->value){
+            insertLeft(root, value);
+        }
+        if(value > root->value){
+            insertRight(root, value);
+        }
+    }
+
+};
 
 Node* search(Node *root, int v){
     if(root != NULL){
@@ -151,20 +210,73 @@ void print_tree(Node *root){
     }
 }
 
-int min(Node *root){
-    if(root->left == NULL){
-        return root->value;
-    }
-    return min(root->left);
-}
+int main(){
 
-int max(Node *root){
-    if(root->right == NULL){
-        return root->value;
-    }
-    return max(root->right);
-}
+    int op, valor;
+    Tree tree;
+    tree.root = NULL;
 
+    Node *no = (Node*)malloc(sizeof(Node));
+    no->value = 0;
+    no->h = 0;
+    no->left = NULL;
+    no->right = NULL;
+    no->parent = NULL;
+
+    do{
+
+        system("clear||cls");
+
+        printf("\n=============================\n");
+        printf("| 0- Encerrar o Programa    |\n");
+        printf("| 1- Inserir Elemento       |\n");
+        printf("| 2- Imprimir Árvore        |\n");
+        printf("| 3- Buscar elemento        |\n");
+        printf("=============================\n");
+        printf("Selecione uma Opção: ");
+
+        scanf("%d", &op);
+
+        if(op == 0){
+            printf("\nSaindo...\n");
+        }
+        else if(op == 1){
+            printf("\nInforme o Valor: ");
+            scanf("%d", &valor);
+            tree_insert(tree.root, valor);
+            printf("\nValor %d inserido com sucesso!", valor);
+            getchar();
+        }
+        else if(op == 2){
+            printf("\nImpressão da Árvore:\n\n");
+            print_tree(tree.root);
+            getchar();
+        }
+        else if(op == 3){
+            printf("\nInforme o Valor a ser buscado: ");
+            scanf("%d", &valor);
+            no = search(tree.root, valor);
+            if(no == NULL){
+                printf("\nvalor do elemento informado não foi encontrado!\n");
+                getchar();
+            }
+            else{
+                printf("\nO endereço do nó encontrado é %p e o valor do nó é: %d", no, no->value);
+                getchar();
+            }
+        }
+        else{
+            printf("\nOpção inválida!\n");
+        }
+        printf("\n\nPresione <ENTER> para continuar\n");
+        getchar();
+
+    }while(op != 0);
+
+    return 0;
+};
+
+/*
 int main(int argc, char **argv)
 {
     struct timespec a, b;
@@ -190,4 +302,4 @@ int main(int argc, char **argv)
     printf("%u\n", t);
 
     return 0;
-}
+}*/
