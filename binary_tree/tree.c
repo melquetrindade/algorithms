@@ -1,6 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/*
+#define DOT_HEADER "\
+digraph G\n\
+{\n\
+  node\n\
+  [\n\
+    fontname=Monospace\n\
+    shape=record\n\
+    style=filled\n\
+    fillcolor=grey\n\
+  ];\n"
+
+#define DOT_FOOTER "}\n"*/
+
 typedef struct node{
     int value;
     struct node *left;
@@ -10,6 +24,35 @@ typedef struct node{
 typedef struct{
     Node *root;
 }Tree;
+
+/*
+//=============================
+void tree_print_dot_body(Node *r)
+{
+    if (r != NULL)
+    {
+        tree_print_dot_body(r->left);
+        printf("  \"%p\" [label=\"{%p|%d|{%p|%p}}\"];\n",
+               (void *) r,
+	       r,
+	       r->value,
+	       r->left,
+	       r->right);
+	if (r->left)
+            printf("  \"%p\" -> \"%p\";\n", r, r->left);
+	if (r->right)
+            printf("  \"%p\" -> \"%p\";\n", r, r->right);
+        tree_print_dot_body(r->right);
+    }
+}
+ 
+void tree_print_dot(Node *r)
+{
+    printf("%s", DOT_HEADER);
+    tree_print_dot_body(r);
+    printf("%s", DOT_FOOTER);
+}
+//====================*/
 
 void insertLeft(Node *lNode, int value){
     if(lNode->left == NULL){
@@ -144,6 +187,7 @@ int main(){
             getchar();
         }
         else if(op == 2){
+            //tree_print_dot(tree.root);
             printf("\nImpressão da Árvore:\n\n");
             print_tree(tree.root);
             getchar();
