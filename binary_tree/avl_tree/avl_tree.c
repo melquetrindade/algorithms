@@ -58,15 +58,21 @@ void balance(Node *no){
             c = caso(no);
             if(c == 1){
                 rotRigth(no);
-                print_tree(achaRoot(no));
+                //print_tree(achaRoot(no));
             }
             else if(c == 2){
                 rotLeft(no);
                 printf("\n%d\n", achaRoot(no)->value);
-                print_tree(achaRoot(no));
+                //print_tree(achaRoot(no));
             }
             else if(c == 3){
-                printf("ainda vou fazer");
+                rotLeft2(no->left);
+                rotRigth(no);
+                printf("\nno atual: %d\n", no->value);
+                //print_tree(achaRoot(no));
+                printf("\nvalor: %d, pai: %p\n", no->parent->value, no->parent->parent);
+                printf("\nvalor: %d, pai: %p\n", no->parent->left->value, no->parent->left->parent);
+                printf("\nvalor: %d, pai: %p\n", no->parent->right->value, no->parent->right->parent);
             }
             else{
                 printf("ainda vou fazer");
@@ -74,6 +80,45 @@ void balance(Node *no){
         }
         no = no->parent;
     }
+    printf("\nsaiu do while\n");
+}
+
+void rotLeft2(Node *no){
+    printf("=========================");
+
+    printf("\nentrou no rotLeft2 para o %d\n", no->value);
+    printf("\nno c == 2:\n");
+
+    Node *rChild, *lChild;
+
+    rChild = no->right; // salva o f a rigth 3: 4
+    printf("\n%d\n", rChild->value);
+    lChild = rChild->left; // salva o f a left do 4: nil
+
+    rChild->left = no; // coloca o 3 como f a left de 4
+    printf("\n%d\n", rChild->left->value);
+    //printf("\n%d\n", rChild->right->value);
+    no->right = lChild; // coloca o f a left de 4 para a rigth of three
+
+    if(lChild != NULL){
+        lChild->parent = no; // 3 passa a ser pai do filho a left do 4
+    }
+
+    rChild->parent = no->parent; // 4 passa a ser filho do 5
+    if(no->parent != NULL){
+        printf("\n%d\n", rChild->parent->value);
+        //atualizar o filho do 6
+        no->parent->left = rChild; // 5 passa a ser pai do 4
+    }
+    
+    no->parent = rChild; // 3 passa a ser filho do 4
+
+    no->h = big(heigthNo(no->left), heigthNo(no->right)) + 1;
+    printf("\n%d\n", no->h);
+    rChild->h = big(heigthNo(rChild->left), heigthNo(rChild->right)) + 1;
+    printf("\n%d\n", rChild->h);
+
+    printf("==================\n");
 }
 
 void rotLeft(Node *no){
@@ -191,7 +236,7 @@ void insertLeft(Node *lNode, int value){
         balance(lNode->left);
 
         //printf("\nvalor: %d\n", lNode->left->value);
-        print_tree(achaRoot(lNode->left));
+        //print_tree(achaRoot(lNode->left));
     }
     else{
         if(value < lNode->left->value){
@@ -224,12 +269,13 @@ void insertRight(Node *rNode, int value){
         calcHeigth(rNode->right);
         balance(rNode->right);
 
-        printf("\nvalor: %d\n", rNode->right->value);
+        //printf("\nvalor: %d, pai: %p\n", rNode->right->value, rNode->right->parent);
 
-        print_tree(achaRoot(rNode->right));
+        printf("\nvalor: %p\n", rNode->right);
+
+        //print_tree(achaRoot(rNode->right));
     }
     else{
-        
         if(value < rNode->right->value){
             insertLeft(rNode->right, value);
         }
@@ -252,11 +298,17 @@ void tree_insert(Tree *tree, int value){
         if(value < tree->root->value){
             insertLeft(tree->root, value);
         }
-        if(value > tree->root->value){
+        else if(value > tree->root->value){
             printf("entrou no insRi");
             insertRight(tree->root, value);
         }
+        else{
+            printf("não pode");
+        }
+        printf("\nraiz: %p\n", tree->root);
+        printf("\nvalor da raiz: %d\n", tree->root->value);
         tree->root = achaRoot(tree->root);
+        printf("\nvalor da raiz: %d\n", tree->root->value);
         printf("\nraiz: %p\n", tree->root);
     }
 
@@ -278,11 +330,13 @@ Node* search(Node *root, int v){
 }
 
 void print_tree(Node *root){
+    
     //printf("entrou antes do if no print\n");
     if(root != NULL){
+        //printf("\nroot: %d\n", root->value);
         //printf("entrou depois do if no print\n");
         print_tree(root->left);
-        printf("valor: %d, pai: %p", root->value, root->parent);
+        printf("\nvalor: %d, pai: %p\n", root->value, root->parent);
         print_tree(root->right);
     }
 }

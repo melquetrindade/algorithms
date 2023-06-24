@@ -24,3 +24,4 @@ void insertRight(Node *, int);
 void tree_insert(Tree *, int);
 Node* search(Node *, int);
 void print_tree(Node *);
+void rotLeft2(Node *);
