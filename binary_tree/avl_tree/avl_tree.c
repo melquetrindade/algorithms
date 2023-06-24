@@ -296,6 +296,33 @@ void print_tree(Node *root){
     }
 }
 
+int main(int argc, char **argv){
+
+    struct timespec a, b;
+    unsigned int t, n;
+    int i;
+
+    Tree tree;
+    tree.root = NULL;
+
+    n = atoi(argv[1]);  
+    srand(time(NULL));
+    for (i = 0; i < n; i++){
+        tree_insert(&tree, i);
+    }
+
+    clock_gettime(CLOCK_MONOTONIC, &b);
+    search(tree.root, n);
+    clock_gettime(CLOCK_MONOTONIC, &a);
+
+    t = (a.tv_sec * 1e9 + a.tv_nsec) - (b.tv_sec * 1e9 + b.tv_nsec);
+
+    printf("%u\n", t);
+
+    return 0;
+}
+
+/*
 int main(){
 
     int op, valor;
@@ -360,32 +387,4 @@ int main(){
     }while(op != 0);
 
     return 0;
-};
-
-/*
-int main(int argc, char **argv)
-{
-    struct timespec a, b;
-    unsigned int t, n;
-    int i;
-
-    Tree tree;
-    tree.root = NULL;
-
-    n = atoi(argv[1]);  
-    srand(time(NULL));
-    for (i = 0; i < n; i++){
-        //v[i] = rand();
-        tree_insert(&tree, i);
-    }
-
-    clock_gettime(CLOCK_MONOTONIC, &b);
-    search(tree.root, n);
-    clock_gettime(CLOCK_MONOTONIC, &a);
-
-    t = (a.tv_sec * 1e9 + a.tv_nsec) - (b.tv_sec * 1e9 + b.tv_nsec);
-
-    printf("%u\n", t);
-
-    return 0;
-}*/
+};*/
