@@ -1,16 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-
-typedef struct hash{
-    struct node** t;
-    unsigned int m;
-    unsigned int n;
-}Hash;
-
-typedef struct node{
-    int value;
-    struct node* next;
-}Node;
+#include "tabHash.h"
 
 Hash* newTable(int tam){
     Hash* hash = (Hash*)malloc(sizeof(Hash));
@@ -32,10 +22,18 @@ Hash* newTable(int tam){
     return NULL;
 }
 
+void deleteNo(Node *node){
+    if(node->next != NULL){
+        deleteNo(node->next);
+    }
+    free(node);
+}
+
 void deleteTable(Hash* hash){
     if(hash != NULL){
         for(int i = 0; i < hash->m; i++){
             if(hash->t[i] != NULL){
+                /*
                 Node* noAtual = hash->t[i];
                 Node* noProx = hash->t[i]->next;
                 while(noAtual != NULL){
@@ -43,7 +41,10 @@ void deleteTable(Hash* hash){
                     noAtual = noProx;
                 }
                 free(noAtual);
-                free(noProx);   
+                free(noProx);
+                free(hash->t[i]);*/
+                deleteNo(hash->t[i]);
+                printf("\nno delete: %d\n", hash->t[i]->value);   
             }
         }
         free(hash->t);
@@ -59,27 +60,46 @@ double fatorCarga(unsigned int n, unsigned int m){
     return n/m;
 }
 
-
-int insertTable(Hash* hash, int value){
-    if(hash != NULL){
-        int pos = hashing(value, hash->m);
-
-        Node* newNode = (Node*)malloc(sizeof(Node));
-        newNode->value = value;
-        newNode->next = NULL;
-
-        hash->t[pos] = newNode;
-        hash->n += 1;
-        return 1;
-
+void insertNo(Node *no, Node *newNode){
+    if(no->next != NULL){
+        insertNo(no->next, newNode);
     }
-    return 0;
+    no->next = newNode;
 }
 
-void insere(Node *node, Node* newNode){
-    if(node != NULL){
-        newNode = node;
-        insere(node->next, newNode->next);
+void insertTable(Hash* hash, int value){
+    int ok = 0;
+    if(hash != NULL){
+        int existe = searchTable(hash, value);
+        if(existe == 0){
+            int pos = hashing(value, hash->m);
+
+            Node* newNode = (Node*)malloc(sizeof(Node));
+            newNode->value = value;
+            newNode->next = NULL;
+
+            if(hash->t[pos] != NULL){
+                insertNo(hash->t[pos], newNode);
+                hash->n += 1;
+                ok = 1;
+                printf("\nValor %d inserido com sucesso!", value);
+            }
+            else{
+                hash->t[pos] = newNode;
+                hash->n += 1;
+                ok = 1;
+                printf("\nValor %d inserido com sucesso!", value);
+            }
+        }
+        else{
+            printf("\nEste valor já foi inserido\n");
+        }
+    }
+    if(ok == 1){
+        double fator = fatorCarga(hash->n, hash->m);
+        if(fator >= 1){
+            rehashing(hash, 2*hash->m);
+        }
     }
 }
 
@@ -87,61 +107,119 @@ void rehashing(Hash *hash, int qtd){
     if(hash != NULL){
         Hash* newHash;
         newHash = newTable(qtd);
-        printf("\nqtd: %d\n", newHash->m);
+        newHash->n = hash->n;
+        printf("\ntam: %d\n", newHash->m);
         for(int i = 0; i < hash->m; i++){
             if(hash->t[i] != NULL){
-                //insere(hash->t[i], newHash->t[i]);
                 newHash->t[i] = hash->t[i]; 
             }
         }
-        printf("\nno new hash: %d\n", newHash->t[0]->value);
-        /*
-        for(int j = 0; j < newHash->m; j++){
-            printf("\nt[%d]: %p\n", j, newHash->t[j]);
-        }*/
+        //printf("\nno new hash: %d\n", newHash->t[0]->value);
         //deleteTable(hash);
         hash->m = newHash->m;
         hash->n = newHash->n;
         hash->t = newHash->t;
-        free(newHash);
-        //return hash;
-        /*
-        hash = newHash;
-        for(int k = 0; k < hash->m; k++){
-            printf("\nt[%d]: %p\n", k, hash->t[k]);
-        }*/
-        //free(newHash);
+        //deleteTable(newHash);
     }
-    //return hash;
+}
+
+int searchList(Node *no, int value){
+    if(no != NULL){
+        if(no->value == value){
+            return 1;
+        }
+        searchList(no->next, value);
+    }
+    return 0;
+}
+
+int searchTable(Hash *hash, int value){
+    if(hash != NULL){
+        int existe = 0;
+        for(int i = 0; i < hash->m; i++){
+            if(hash->t[i] != NULL){
+                existe = searchList(hash->t[i], value);
+                if(existe == 1){
+                    return 1;
+                }
+            }
+        }
+        return 0;
+    }
+}
+//====================
+void printLista(Node *no){
+    if(no->next != NULL){
+        printLista(no->next);
+    }
+    printf("%d -> ", no->value);
+}
+
+void printTable(Hash *hash){
+    if(hash != NULL){
+        for(int i = 0; i < hash->m; i++){
+            printf("\nt[%d]: ", i);
+            if(hash->t[i] != NULL){
+                printLista(hash->t[i]);
+            }
+        }
+    }
 }
 
 int main(){
 
+    int op, valor, ret;
     Hash* hash = newTable(1);
-    //printf("\npassou da criação\n");
-
-    //printf("\ntam da tab: %d - ele: \n", hash->m);
-
-    //deleteTable(hash);
-
-    int insertOk = insertTable(hash, 4);
-
-    //printf("\npassou da inserção\n");
     
-    if(insertOk == 1){
-        double fator = fatorCarga(hash->n, hash->m);
-        if(fator >= 1){
-            //printf("\nfator: %0.1f\n", fator);
-            rehashing(hash, 2*hash->m);
-            for(int k = 0; k < hash->m; k++){
-                printf("\nt[%d]: %p\n", k, hash->t[k]);
+    do{
+
+        system("clear||cls");
+
+        printf("\n=============================\n");
+        printf("| 0- Encerrar o Programa    |\n");
+        printf("| 1- Inserir Elemento       |\n");
+        printf("| 2- Imprimir Tabela        |\n");
+        printf("| 3- Buscar elemento        |\n");
+        printf("=============================\n");
+        printf("Selecione uma Opção: ");
+
+        scanf("%d", &op);
+
+        if(op == 0){
+            printf("\nSaindo...\n");
+        }
+        else if(op == 1){
+            printf("\nInforme o Valor: ");
+            scanf("%d", &valor);
+            insertTable(hash, valor);
+            printf("\n\nqtd: %d - tam: %d\n", hash->n, hash->m);
+            getchar();
+        } // falta refazer a função de busca
+        else if(op == 2){
+            printf("\nImpressão da Tabela:\n\n");
+            printTable(hash);
+            getchar();
+        }
+        else if(op == 3){
+            printf("\nInforme o Valor a ser buscado: ");
+            scanf("%d", &valor);
+            ret = searchTable(hash, valor);
+            if(ret == 1){
+                printf("\nValor: %d foi encontrado!\n", valor);
+                getchar();
+            }
+            else{
+                printf("\nValor: %d não encontrado!\n", valor);
+                getchar();
             }
         }
-    }
+        else{
+            printf("\nOpção inválida!\n");
+        }
+        printf("\n\nPresione <ENTER> para continuar\n");
+        getchar();
 
-    printf("\n%d\n", hash->t[0]->value);
-    printf("\nqtd: %d\n", hash->m);
-    
+    }while(op != 0);
 
     return 0;
 }
