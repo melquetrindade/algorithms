@@ -1,14 +1,15 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
 #include "tabHash.h"
 
 Hash* newTable(int tam){
     Hash* hash = (Hash*)malloc(sizeof(Hash));
     if(hash != NULL){
+        //printf("\nentrou aqui\n");
         hash->m = tam;
         hash->t = (Node**)malloc(tam*sizeof(Node*));
         if(hash->t == NULL){
+            //printf("\nentrou aqui 2\n");
             free(hash);
             return NULL;
         }
@@ -42,7 +43,8 @@ void deleteTable(Hash* hash){
                 free(noAtual);
                 free(noProx);
                 free(hash->t[i]);*/
-                deleteNo(hash->t[i]);   
+                deleteNo(hash->t[i]);
+                printf("\nno delete: %d\n", hash->t[i]->value);   
             }
         }
         free(hash->t);
@@ -60,6 +62,7 @@ double fatorCarga(int n, int m){
 
 void insertNo(Node *no, Node *newNode){
     if(no->next != NULL){
+        printf("\ninsert: %d\n", no->next->value);
         insertNo(no->next, newNode);
     }
     else{
@@ -73,19 +76,23 @@ void insertTable(Hash* hash, int value){
         int existe = searchTable(hash, value);
         if(existe == 0){
             int pos = hashing(value, hash->m);
+            printf("\nvalor: %d - tam: %d\n", value, hash->m);
             Node* newNode = (Node*)malloc(sizeof(Node));
             newNode->value = value;
             newNode->next = NULL;
 
             if(hash->t[pos] != NULL){
+                printf("\n%d - next: %p\n", hash->t[pos]->value, hash->t[pos]->next);
                 insertNo(hash->t[pos], newNode);
                 hash->n += 1;
                 ok = 1;
+                printf("\nValor %d inserido com sucesso!", value);
             }
             else{
                 hash->t[pos] = newNode;
                 hash->n += 1;
                 ok = 1;
+                printf("\nValor %d inserido com sucesso!", value);
             }
         }
         else{
@@ -124,8 +131,10 @@ void rehashing(Hash *hash, int qtd){
         Hash* newHash;
         newHash = newTable(qtd);
         newHash->n = hash->n;
+        printf("\ntam: %d\n", newHash->m);
         for(int i = 0; i < hash->m; i++){
             if(hash->t[i] != NULL){
+                //newHash->t[i] = hash->t[i];
                 rehashInsert(newHash, hash->t[i]); 
             }
         }
@@ -140,7 +149,9 @@ void rehashing(Hash *hash, int qtd){
 
 int searchList(Node *no, int value){
     if(no->next != NULL){
+        printf("\n-- %d -- value: %d\n", no->next->value, value);
         if(no->next->value == value){
+            printf("\nentrou\n");
             return 1;
         }
         else{
@@ -155,8 +166,11 @@ int searchList(Node *no, int value){
 int searchTable(Hash *hash, int value){
     if(hash != NULL){
         int exist;
+        printf("\nvalor: %d - tam: %d\n", value, hash->m);
         int pos = hashing(value, hash->m);
+        printf("\npos: %d\n", pos);
         if(hash->t[pos] != NULL){
+            //printf("\n-- %d --\n", hash->t[pos]->value);
             if(hash->t[pos]->value == value){
                 exist = 1;
             }
@@ -164,7 +178,10 @@ int searchTable(Hash *hash, int value){
                 
                 exist = searchList(hash->t[pos], value);
             }
+            
+            printf("\nexiste: %d\n", exist);
             if(exist == 1){
+                printf("\nentrou 2\n");
                 return 1;
             }
         }
@@ -174,9 +191,10 @@ int searchTable(Hash *hash, int value){
 //====================
 void printLista(Node *no){
     if(no->next != NULL){
+        printf("\nentrou\n");
         printLista(no->next);
     }
-    printf("%d -> ", no->value);
+    printf("%d, %p -> ", no->value, no->next);
 }
 
 void printTable(Hash *hash){
@@ -190,43 +208,6 @@ void printTable(Hash *hash){
     }
 }
 
-int main(int argc, char **argv){
-
-    struct timespec a, b;
-    unsigned int t, n;
-    int i, ret;
-
-    Hash* hash = newTable(1);
-
-    n = atoi(argv[1]);  
-    srand(time(NULL));
-    for (i = 0; i < n; i++){
-        insertTable(hash, rand());
-    }
-
-    clock_gettime(CLOCK_MONOTONIC, &b);
-    ret = searchTable(hash, n);
-    clock_gettime(CLOCK_MONOTONIC, &a);
-
-    t = (a.tv_sec * 1e9 + a.tv_nsec) - (b.tv_sec * 1e9 + b.tv_nsec);
-
-    if(ret == 1){
-        printf("\nValor: %d foi encontrado!\n", n);
-        getchar();
-    }
-    else{
-        printf("\nValor: %d não encontrado!\n", n);
-        getchar();
-    }
-
-    printTable(hash);
-
-    printf("\n%u\n", t);
-
-    return 0;
-}
-
-/*
 int main(){
 
     int op, valor, ret;
@@ -283,4 +264,4 @@ int main(){
     }while(op != 0);
 
     return 0;
-}*/
+}
