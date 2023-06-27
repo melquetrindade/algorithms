@@ -48,49 +48,25 @@ void balance(Node *no){
         if(fBalance < -1 || fBalance > 1){
             c = caso(no);
             if(c == 1){
-                rotRigth(no);
+                rotRigth(no, c);
             }
             else if(c == 2){
-                rotLeft(no);
+                rotLeft(no, c);
             }
             else if(c == 3){
-                rotLeft2(no->left);
-                rotRigth(no);
+                rotLeft(no->left, c);
+                rotRigth(no, c);
             }
             else{
-                rotRigth2(no->right);
-                rotLeft(no);
+                rotRigth(no->right, c);
+                rotLeft(no, c);
             }
         }
         no = no->parent;
     }
 }
 
-void rotLeft2(Node *no){
-    Node *rChild, *lChild;
-
-    rChild = no->right; // salva o f a rigth 3: 4
-    lChild = rChild->left; // salva o f a left do 4: nil
-
-    rChild->left = no; // coloca o 3 como f a left de 4
-    no->right = lChild; // coloca o f a left de 4 para a rigth of three
-
-    if(lChild != NULL){
-        lChild->parent = no; // 3 passa a ser pai do filho a left do 4
-    }
-
-    rChild->parent = no->parent; // 4 passa a ser filho do 5
-    if(no->parent != NULL){
-        no->parent->left = rChild; // 5 passa a ser pai do 4
-    }
-    
-    no->parent = rChild; // 3 passa a ser filho do 4
-
-    no->h = big(heigthNo(no->left), heigthNo(no->right)) + 1;
-    rChild->h = big(heigthNo(rChild->left), heigthNo(rChild->right)) + 1;
-}
-
-void rotLeft(Node *no){
+void rotLeft(Node *no, int caso){
 
     Node *rChild, *lChild;
 
@@ -105,8 +81,15 @@ void rotLeft(Node *no){
     }
 
     rChild->parent = no->parent;
-    if(no->parent != NULL){
-        no->parent->right = rChild;
+    if(caso != 3){
+        if(no->parent != NULL){
+            no->parent->right = rChild;
+        }
+    }
+    else{
+        if(no->parent != NULL){
+            no->parent->left = rChild; // 5 passa a ser pai do 4
+        }
     }
     
     no->parent = rChild;
@@ -115,7 +98,7 @@ void rotLeft(Node *no){
     rChild->h = big(heigthNo(rChild->left), heigthNo(rChild->right)) + 1;
 }
 
-void rotRigth2(Node *no){
+void rotRigth(Node *no, int caso){
 
     Node *rChild, *lChild;
 
@@ -130,41 +113,20 @@ void rotRigth2(Node *no){
     }
 
     lChild->parent = no->parent;
-    if(no->parent != NULL){
-        no->parent->right = lChild;
+    if(caso != 4){
+        if(no->parent != NULL){
+            no->parent->left = lChild;
+        }
+    }
+    else{
+        if(no->parent != NULL){
+            no->parent->right = lChild;
+        }
     }
     no->parent = lChild;
 
     no->h = big(heigthNo(no->left), heigthNo(no->right)) + 1;
     lChild->h = big(heigthNo(lChild->left), heigthNo(lChild->right)) + 1;
-
-
-}
-
-void rotRigth(Node *no){
-
-    Node *rChild, *lChild;
-
-    lChild = no->left;
-    rChild = lChild->right;
-
-    lChild->right = no;
-    no->left = rChild;
-
-    if(rChild != NULL){
-        rChild->parent = no;
-    }
-
-    lChild->parent = no->parent;
-    if(no->parent != NULL){
-        no->parent->left = lChild;
-    }
-    no->parent = lChild;
-
-    no->h = big(heigthNo(no->left), heigthNo(no->right)) + 1;
-    lChild->h = big(heigthNo(lChild->left), heigthNo(lChild->right)) + 1;
-
-
 }
 
 int big(int lChild, int rChild){
